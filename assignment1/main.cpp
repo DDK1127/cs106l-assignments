@@ -63,15 +63,15 @@ void parse_csv(std::string filename, std::vector<Course>& courses) {
   std::ifstream ifs("courses.csv");
   std::string line;
 
-  if(!ifs.is_open()){
-    std::cerr << "Open file fails" << '\n';
+  if (!ifs.is_open()) {
+    std::cerr << "Open courses.csv fails" << '\n';
     return;
   }
 
   std::getline(ifs, line); // ignore Title line.
-  while(std::getline(ifs, line)){
-    std::vector<std::string> fields = split(line,  ',');
-    
+  while (std::getline(ifs, line)) {
+    std::vector<std::string> fields = split(line, ',');
+
     std::string title = fields[0];
     std::string units = fields[1];
     std::string quarter = fields[2];
@@ -99,7 +99,27 @@ void parse_csv(std::string filename, std::vector<Course>& courses) {
  *                    This vector will be modified by removing all offered courses.
  */
 void write_courses_offered(std::vector<Course>& all_courses) {
-  /* (STUDENT TODO) Your code goes here... */
+  std::ofstream ofs(COURSES_OFFERED_PATH);
+
+  if (!ofs.is_open()) {
+    std::cerr << "Open " << COURSES_OFFERED_PATH << " fails" << '\n';
+    return;
+  }
+
+  ofs << "Title,Number of Units,Quarter\n";
+
+  std::vector<Course> to_delete;
+  for (Course& fields : all_courses) {
+    if (fields.quarter != "null") {
+      ofs << fields.title << ',' << fields.number_of_units << ',' << fields.quarter << '\n';
+      to_delete.emplace_back(fields);
+    }
+  }
+
+  ofs.close();
+
+  for (const Course& fields : to_delete)
+    delete_elem_from_vector(all_courses, fields);
 }
 
 /**
@@ -116,7 +136,19 @@ void write_courses_offered(std::vector<Course>& all_courses) {
  * @param unlisted_courses A vector of courses that are not offered.
  */
 void write_courses_not_offered(std::vector<Course> unlisted_courses) {
-  /* (STUDENT TODO) Your code goes here... */
+  std::ofstream ofs(COURSES_NOT_OFFERED_PATH);
+
+  if (!ofs.is_open()) {
+    std::cerr << "Open " << COURSES_NOT_OFFERED_PATH << " fails" << '\n';
+    return;
+  }
+
+  ofs << "Title,Number of Units,Quarter\n";
+
+  for (const Course& fields : unlisted_courses)
+    ofs << fields.title << ',' << fields.number_of_units << ',' << fields.quarter << '\n';
+
+  ofs.close();
 }
 
 int main() {
